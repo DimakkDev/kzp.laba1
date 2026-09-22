@@ -23,7 +23,12 @@ public final class Main {
      * @param args аргументи командного рядка
      */
     public static void main(String[] args) {
-        Path inputPath = Path.of("data", "input.csv");
+        // Якщо аргументи не передані з консолі, встановлюємо дефолтні значення
+        if (args == null || args.length == 0) {
+            args = new String[]{"--input", "data/plants.csv", "--output", "out/report.txt"};
+        }
+
+        Path inputPath = Path.of("data", "plants.csv");
         Path outputPath = Path.of("out", "report.txt");
 
         // Обробка аргументів командного рядка
