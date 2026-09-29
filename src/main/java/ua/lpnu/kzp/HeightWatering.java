@@ -2,6 +2,16 @@ package ua.lpnu.kzp;
 
 import java.util.Objects;
 
+/**
+ * Record для збереження підсумкових аналітичних показників розсадника.
+ *
+ * @param validCount кількість коректних записів
+ * @param averageHeight середня висота
+ * @param maxPrice найвища ціна
+ * @param maxPricePlant назва найдорожчої рослини
+ * @param minWateringDays найменший інтервал поливу
+ * @param minWateringPlant назва рослини з найчастішим поливом
+ */
 public record HeightWatering(
     int validCount,
     double averageHeight,
