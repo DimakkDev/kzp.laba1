@@ -3,6 +3,9 @@ package ua.lpnu.kzp;
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * Описує сутність рослини з розсадника.
+ */
 public final class Plant {
     private final String species;
     private final String name;
@@ -10,14 +13,14 @@ public final class Plant {
     private final double price;
     private final int wateringDays;
 
-    public Plant(String species, String name, double heightCm, double price, int wateringDays) {
+    public Plant(final String species, final String name, final double heightCm, final double price, final int wateringDays) {
         this.species = Objects.requireNonNull(species, "Вид не може бути null");
-        if (species.isBlank()) {
+        if (this.species.isBlank()) {
             throw new IllegalArgumentException("Вид не може бути порожнім");
         }
 
         this.name = Objects.requireNonNull(name, "Назва не може бути null");
-        if (name.isBlank()) {
+        if (this.name.isBlank()) {
             throw new IllegalArgumentException("Назва не може бути порожньою");
         }
 
@@ -38,9 +41,9 @@ public final class Plant {
         this.wateringDays = wateringDays;
     }
 
-    public static Plant fromCsv(String line) {
-        Objects.requireNonNull(line, "Рядок не може бути null");
-        String[] fields = line.split(";", -1);
+    public static Plant fromCsv(final String line) {
+        final String inputLine = Objects.requireNonNull(line, "Рядок не може бути null");
+        final String[] fields = inputLine.split(";", -1);
 
         if (fields.length != 5) {
             throw new IllegalArgumentException("Очікується 5 полів, отримано: " + fields.length);
@@ -64,6 +67,23 @@ public final class Plant {
     public double getHeightCm() { return heightCm; }
     public double getPrice() { return price; }
     public int getWateringDays() { return wateringDays; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plant plant = (Plant) o;
+        return Double.compare(plant.heightCm, heightCm) == 0 &&
+                Double.compare(plant.price, price) == 0 &&
+                wateringDays == plant.wateringDays &&
+                Objects.equals(species, plant.species) &&
+                Objects.equals(name, plant.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(species, name, heightCm, price, wateringDays);
+    }
 
     @Override
     public String toString() {

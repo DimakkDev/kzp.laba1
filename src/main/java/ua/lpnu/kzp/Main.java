@@ -9,41 +9,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Main {
-    public static void main(String[] args) {
-        Path inputPath = args.length > 0 ? Paths.get(args[0]) : Paths.get("data", "plants.csv");
-        Path outputPath = args.length > 1 ? Paths.get(args[1]) : Paths.get("out", "report.txt");
+/**
+ * Головний клас програми аналізу розсадника рослин.
+ */
+public final class Main {
+
+    private Main() {
+        // Приватний конструктор для запобігання створенню екземплярів
+    }
+
+    public static void main(final String[] args) {
+        final Path inputPath = args != null && args.length > 0 ? Paths.get(args[0]) : Paths.get("data", "plants.csv");
+        final Path outputPath = args != null && args.length > 1 ? Paths.get(args[1]) : Paths.get("out", "report.txt");
 
         if (!Files.exists(inputPath)) {
             System.err.println("Файл не знайдено: " + inputPath);
             return;
         }
 
-        List<Plant> plants = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
+        final List<Plant> plants = new ArrayList<>();
+        final List<String> errors = new ArrayList<>();
 
         try {
-            List<String> lines = Files.readAllLines(inputPath, StandardCharsets.UTF_8);
+            final List<String> lines = Files.readAllLines(inputPath, StandardCharsets.UTF_8);
 
             for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i).trim();
-                if (line.isEmpty()) continue;
+                final String line = lines.get(i).trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
 
                 try {
-                    Plant plant = Plant.fromCsv(line);
+                    final Plant plant = Plant.fromCsv(line);
                     plants.add(plant);
                 } catch (IllegalArgumentException e) {
                     errors.add("Рядок " + (i + 1) + ": " + e.getMessage());
                 }
             }
 
-            HeightWatering summary = calculateSummary(plants);
-            String reportText = generateReport(summary, errors);
+            final HeightWatering summary = calculateSummary(plants);
+            final String reportText = generateReport(summary, errors);
 
             System.out.println(reportText);
 
-            if (outputPath.getParent() != null) {
-                Files.createDirectories(outputPath.getParent());
+            final Path parentDir = outputPath.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
             }
             Files.writeString(outputPath, reportText, StandardCharsets.UTF_8);
 
@@ -52,8 +63,8 @@ public class Main {
         }
     }
 
-    public static HeightWatering calculateSummary(List<Plant> plants) {
-        if (plants.isEmpty()) {
+    public static HeightWatering calculateSummary(final List<Plant> plants) {
+        if (plants == null || plants.isEmpty()) {
             return new HeightWatering(0, 0.0, 0.0, "N/A", 0, "N/A");
         }
 
@@ -63,7 +74,7 @@ public class Main {
         int minWateringDays = Integer.MAX_VALUE;
         String minWateringPlant = "";
 
-        for (Plant p : plants) {
+        for (final Plant p : plants) {
             totalHeight += p.getHeightCm();
 
             if (p.getPrice() > maxPrice) {
@@ -77,21 +88,24 @@ public class Main {
             }
         }
 
-        double avgHeight = totalHeight / plants.size();
+        final double avgHeight = totalHeight / plants.size();
         return new HeightWatering(plants.size(), avgHeight, maxPrice, maxPricePlant, minWateringDays, minWateringPlant);
     }
 
-    public static String generateReport(HeightWatering summary, List<String> errors) {
-        StringBuilder sb = new StringBuilder();
+    public static String generateReport(final HeightWatering summary, final List<String> errors) {
+        if (summary == null) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
         sb.append("=== ЗВІТ РОЗСАДНИКА РОСЛИН ===\n");
         sb.append(String.format(Locale.ROOT, "Опрацьовано записів: %d\n", summary.validCount()));
         sb.append(String.format(Locale.ROOT, "Середня висота рослин: %.2f см\n", summary.averageHeight()));
         sb.append(String.format(Locale.ROOT, "Найдорожча рослина: %s (%.2f грн)\n", summary.maxPricePlant(), summary.maxPrice()));
         sb.append(String.format(Locale.ROOT, "Найчастіший полив: %s (кожні %d дн.)\n", summary.minWateringPlant(), summary.minWateringDays()));
 
-        if (!errors.isEmpty()) {
+        if (errors != null && !errors.isEmpty()) {
             sb.append("\nВиявлені помилки (").append(errors.size()).append("):\n");
-            for (String err : errors) {
+            for (final String err : errors) {
                 sb.append("- ").append(err).append("\n");
             }
         }
