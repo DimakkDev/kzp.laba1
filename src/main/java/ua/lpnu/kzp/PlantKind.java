@@ -13,7 +13,7 @@ public enum PlantKind {
     private final String displayName;
 
     /**
-     * Конструктор для еламенту Enum PlantKind.
+     * Конструктор для елементу Enum PlantKind.
      *
      * @param displayName відображувана назва категорії
      */

@@ -11,30 +11,27 @@ public class Tree extends Plant {
     /**
      * Конструктор для Tree.
      *
-     * @param id ідентифікатор
-     * @param name назва
-     * @param ageInYears вік у роках
-     * @param heightInMeters висота в метрах
-     * @throws IllegalArgumentException якщо висота <= 0
+     * @param id                   ідентифікатор
+     * @param name                 назва
+     * @param ageInYears           вік у роках
+     * @param heightInMeters       висота в метрах
+     * @param price                ціна
+     * @param wateringIntervalDays періодичність поливу в днях
      */
-    public Tree(String id, String name, double ageInYears, double heightInMeters) {
-        super(id, name, ageInYears, PlantKind.TREE);
+    public Tree(String id, String name, double ageInYears, double heightInMeters, double price, int wateringIntervalDays) {
+        super(id, name, ageInYears, PlantKind.TREE, price, wateringIntervalDays);
         if (heightInMeters <= 0) {
             throw new IllegalArgumentException("Висота дерева повинна бути більшою за 0.");
         }
         this.heightInMeters = heightInMeters;
     }
 
-    /**
-     * Перевизначений поліморфний метод розрахунку догляду для дерева.
-     *
-     * @return години догляду на місяць
-     */
     @Override
     public double calculateCareRequirement() {
         return 2.0 + (heightInMeters * 0.5) + (getAgeInYears() * 0.1);
     }
 
+    @Override
     public double getHeightInMeters() {
         return heightInMeters;
     }
