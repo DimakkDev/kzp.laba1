@@ -1,93 +1,83 @@
 package ua.lpnu.kzp;
 
-import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Описує сутність рослини з розсадника.
+ * Абстрактний базовий клас, що визначає спільні поля та інваріанти рослини.
  */
-public final class Plant {
-    private final String species;
+public abstract class Plant {
+    private final String id;
     private final String name;
-    private final double heightCm;
-    private final double price;
-    private final int wateringDays;
+    private final double ageInYears;
+    private final PlantKind kind;
 
-    public Plant(final String species, final String name, final double heightCm, final double price, final int wateringDays) {
-        this.species = Objects.requireNonNull(species, "Вид не може бути null");
-        if (this.species.isBlank()) {
-            throw new IllegalArgumentException("Вид не може бути порожнім");
+    /**
+     * Конструктор для ініціалізації спільних полів рослини.
+     *
+     * @param id унікальний ідентифікатор рослини
+     * @param name назва рослини
+     * @param ageInYears вік у роках
+     * @param kind категорія рослини (PlantKind)
+     * @throws IllegalArgumentException якщо id чи name порожні, або вік від'ємний
+     */
+    public Plant(String id, String name, double ageInYears, PlantKind kind) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Ідентифікатор рослини не може бути порожнім.");
         }
-
-        this.name = Objects.requireNonNull(name, "Назва не може бути null");
-        if (this.name.isBlank()) {
-            throw new IllegalArgumentException("Назва не може бути порожньою");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Назва рослини не може бути порожньою.");
         }
-
-        if (heightCm <= 0 || !Double.isFinite(heightCm)) {
-            throw new IllegalArgumentException("Висота має бути додатним скінченним числом");
+        if (ageInYears < 0) {
+            throw new IllegalArgumentException("Вік рослини не може бути від'ємним.");
         }
-
-        if (price < 0 || !Double.isFinite(price)) {
-            throw new IllegalArgumentException("Ціна не може бути від'ємною");
-        }
-
-        if (wateringDays <= 0) {
-            throw new IllegalArgumentException("Інтервал поливу має бути більшим за 0");
-        }
-
-        this.heightCm = heightCm;
-        this.price = price;
-        this.wateringDays = wateringDays;
+        this.id = id;
+        this.name = name;
+        this.ageInYears = ageInYears;
+        this.kind = Objects.requireNonNull(kind, "Категорія рослини не може бути null.");
     }
 
-    public static Plant fromCsv(final String line) {
-        final String inputLine = Objects.requireNonNull(line, "Рядок не може бути null");
-        final String[] fields = inputLine.split(";", -1);
+    /**
+     * Поліморфний метод обчислення потреби в догляді (у годинах/місяць).
+     *
+     * @return час догляду в годинах на місяць
+     */
+    public abstract double calculateCareRequirement();
 
-        if (fields.length != 5) {
-            throw new IllegalArgumentException("Очікується 5 полів, отримано: " + fields.length);
-        }
-
-        try {
-            return new Plant(
-                fields[0].trim(),
-                fields[1].trim(),
-                Double.parseDouble(fields[2].trim()),
-                Double.parseDouble(fields[3].trim()),
-                Integer.parseInt(fields[4].trim())
-            );
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Числове поле має помилковий формат", e);
-        }
+    public String getId() {
+        return id;
     }
 
-    public String getSpecies() { return species; }
-    public String getName() { return name; }
-    public double getHeightCm() { return heightCm; }
-    public double getPrice() { return price; }
-    public int getWateringDays() { return wateringDays; }
+    public String getName() {
+        return name;
+    }
+
+    public double getAgeInYears() {
+        return ageInYears;
+    }
+
+    public PlantKind getKind() {
+        return kind;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Plant plant = (Plant) o;
-        return Double.compare(plant.heightCm, heightCm) == 0 &&
-                Double.compare(plant.price, price) == 0 &&
-                wateringDays == plant.wateringDays &&
-                Objects.equals(species, plant.species) &&
-                Objects.equals(name, plant.name);
+        return Double.compare(plant.ageInYears, ageInYears) == 0 &&
+                Objects.equals(id, plant.id) &&
+                Objects.equals(name, plant.name) &&
+                kind == plant.kind;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(species, name, heightCm, price, wateringDays);
+        return Objects.hash(id, name, ageInYears, kind);
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "%s \"%s\": %.1f см, %.2f грн, полив кожні %d дн.",
-                species, name, heightCm, price, wateringDays);
+        return String.format("%s [ID: %s, Назва: %s, Вік: %.1f р., Вид: %s]",
+                getClass().getSimpleName(), id, name, ageInYears, kind.getDisplayName());
     }
 }
